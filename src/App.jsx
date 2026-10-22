@@ -26,6 +26,7 @@ function App() {
   const [date, setDate] = useState('')
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
+  const [month, setMonth] = useState('')
 
 //validation checker for fields
 function handleAdd() {
@@ -56,7 +57,7 @@ function handleAdd() {
 }
 
   function handleDelete(id) {
-    setExpenses(expenses.filter((expense) => expense.id !== id)) // expense is a parameter.
+    setExpenses(expenses.filter((expense) => expense.id !== id)) // expense.id, we do .<variable> to filter one field out of an object
   } // the .filter method selects a subset of items from an array based on a condition. 
 
   function handleClear() {
@@ -66,11 +67,13 @@ function handleAdd() {
   useEffect(() => {
     localStorage.setItem('expenses', JSON.stringify(expenses))
   }, [expenses])
-
-  const total = expenses.reduce((sum, expenses) => sum + expenses.amount, 0) // calculates the total of the expenses
-  const totalsByCategory = expenses.reduce((totals, expense) => {
-  
-  })
+  const filteredExpenses = expenses.filter((expense) => expense.date.startsWith(month))
+  const total = filteredExpenses.reduce((sum, expenses) => sum + expenses.amount, 0) // calculates the total of the expenses
+  const totalsByCategory = filteredExpenses.reduce((totals, expense) => {
+    const {category, amount} = expense;
+    totals[category] = (totals[category] || 0) + amount;
+    return totals;
+}, {});
 
   return (
     <div>
@@ -101,9 +104,20 @@ function handleAdd() {
         placeholder="Note"
       />
       <button onClick={handleClear}>Clear all</button>
-      <p>Draft: {amount} | {category} | {date} | {note}</p>
 
-      <h2>Total: ₱{total}</h2> 
+      <input
+      type="month"
+      value={month}
+      onChange={(e) => setMonth(e.target.value)}
+      />
+      <p>Draft: {amount} | {category} | {date} | {note}</p>
+      <h2>Total: ₱{total}</h2>
+      <h2>Total by Category</h2>
+      <ul>
+        {Object.entries(totalsByCategory).map(([name, sum]) => (
+          <li key={name}>{name}: ₱{sum}</li>
+        ))}
+      </ul>
       <ul>
         {expenses.map((expense) => ( // .map transforms every element of an array then makes a new array
           <li key={expense.id}> {/* Key is only used for lists. we generate a key for each list. We make keys to react can tell the items apart */} 
