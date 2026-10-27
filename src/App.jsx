@@ -27,6 +27,7 @@ function App() {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [month, setMonth] = useState('')
+  const [editingId, setEditingId] = useState(null)
 
 //validation checker for fields
 function handleAdd() {
@@ -37,24 +38,46 @@ function handleAdd() {
 
   if(missing.length > 0) {
     setError('Please add: ' + missing.join(', '))
-    return
+    return;
   }
 
-  const newExpense = {
-    id: Date.now(), // temporary id, localStorage 
-    amount: Number(amount), // text to number conversion because e.target.value will always return a string
-    category, 
-    date,
-    note
+  if(editingId !== null) {
+    const updatedExpense = {
+      id: editingId,
+      amount: Number(amount),
+      category,
+      date,
+      note,
+    }
+    setExpenses(expenses.map((row) => (row.id == editingId ? updatedExpense : row)))
+  } else {
+    const newExpense = {
+      id: Date.now(), // date.now is a quick id generation. 
+      amount: Number(amount),
+      category,
+      date,
+      note
+    }
+    setExpenses([...expenses, newExpense])
   }
-  // code below resets the fields. Aside from setExpenses which creates a new copy
-  setExpenses([...expenses, newExpense]) // copy of the old list, then a new copy 
+
+  setEditingId(null)
   setAmount('')
   setCategory('')
   setDate('')
   setNote('')
   setError('')
 }
+  function handleEdit(id) {
+    const currentObject = expenses.find((expense) => expense.id === id);
+    if (currentObject) {
+      setEditingId(id)
+      setAmount(currentObject.amount);
+      setCategory(currentObject.category);
+      setDate(currentObject.date);
+      setNote(currentObject.note);
+    }
+  }
 
   function handleDelete(id) {
     setExpenses(expenses.filter((expense) => expense.id !== id)) // expense.id, we do .<variable> to filter one field out of an object
@@ -68,7 +91,7 @@ function handleAdd() {
     localStorage.setItem('expenses', JSON.stringify(expenses))
   }, [expenses])
   const filteredExpenses = expenses.filter((expense) => expense.date.startsWith(month))
-  const total = filteredExpenses.reduce((sum, expenses) => sum + expenses.amount, 0) // calculates the total of the expenses
+  const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0) // calculates the total of the expenses
   const totalsByCategory = filteredExpenses.reduce((totals, expense) => {
     const {category, amount} = expense;
     totals[category] = (totals[category] || 0) + amount;
@@ -76,7 +99,7 @@ function handleAdd() {
 }, {});
 
   return (
-    <div>
+    <div>s
       <h1>Expense Tracker</h1>
 
       <input type="number"
@@ -119,10 +142,11 @@ function handleAdd() {
         ))}
       </ul>
       <ul>
-        {expenses.map((expense) => ( // .map transforms every element of an array then makes a new array
-          <li key={expense.id}> {/* Key is only used for lists. we generate a key for each list. We make keys to react can tell the items apart */} 
+        {filteredExpenses.map((expense) => ( // .map transforms every element of an array then makes a new array
+          <li key={filteredExpenses.id}> {/* Key is only used for lists. we generate a key for each list. We make keys to react can tell the items apart */} 
             {expense.date} - {expense.category} - ₱{expense.amount}
             {expense.note && ` (${expense.note})`}
+            <button onClick={() => handleEdit(expense.id)}>Edit</button>
             <button onClick={() => handleDelete(expense.id)}>Delete</button>
           </li>
         ))}
