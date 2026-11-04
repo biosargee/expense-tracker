@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { BarChart, Bar, XAxis, YAxis, Tooltip} from 'recharts'
 
 const CATEGORIES = [
   'Electricity',
@@ -37,6 +38,7 @@ function handleAdd() {
   if(!date) missing.push('a date')
 
   if(missing.length > 0) {
+    
     setError('Please add: ' + missing.join(', '))
     return;
   }
@@ -44,12 +46,12 @@ function handleAdd() {
   if(editingId !== null) {
     const updatedExpense = {
       id: editingId,
-      amount: Number(amount),
+      amount: Number(amount), // Number(amount) parses our string into integer
       category,
       date,
       note,
     }
-    setExpenses(expenses.map((row) => (row.id == editingId ? updatedExpense : row)))
+    setExpenses(expenses.map((row) => (row.id === editingId ? updatedExpense : row)))
   } else {
     const newExpense = {
       id: Date.now(), // date.now is a quick id generation. 
@@ -92,11 +94,16 @@ function handleAdd() {
   }, [expenses])
   const filteredExpenses = expenses.filter((expense) => expense.date.startsWith(month))
   const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0) // calculates the total of the expenses
-  const totalsByCategory = filteredExpenses.reduce((totals, expense) => {
+  const totalsByCategory = filteredExpenses.reduce((totals, expense) => { // .reduce takes an array and combines its items into one final result.
     const {category, amount} = expense;
-    totals[category] = (totals[category] || 0) + amount;
+    totals[category] = (totals[category] || 0) + amount; // || 0 is added because category might not have a total yet
     return totals;
 }, {});
+
+  const chartData = Object.entries(totalsByCategory).map(([categoryName, total]) => ({
+    category,
+    total
+  }));
 
   return (
     <div>s
@@ -136,6 +143,16 @@ function handleAdd() {
       <p>Draft: {amount} | {category} | {date} | {note}</p>
       <h2>Total: ₱{total}</h2>
       <h2>Total by Category</h2>
+      <BarChart
+      width={600}
+      height={300}
+      data={chartData}
+      >
+        <XAxis dataKey="category"></XAxis>
+        <YAxis></YAxis>
+        <Tooltip></Tooltip>
+        <Bar dataKey="total" fill="#8884d8" alignment="center"/>
+      </BarChart>
       <ul>
         {Object.entries(totalsByCategory).map(([name, sum]) => (
           <li key={name}>{name}: ₱{sum}</li>
@@ -143,7 +160,7 @@ function handleAdd() {
       </ul>
       <ul>
         {filteredExpenses.map((expense) => ( // .map transforms every element of an array then makes a new array
-          <li key={filteredExpenses.id}> {/* Key is only used for lists. we generate a key for each list. We make keys to react can tell the items apart */} 
+          <li key={expense.id}> {/* Key is only used for lists. we generate a key for each list. We make keys to react can tell the items apart */} 
             {expense.date} - {expense.category} - ₱{expense.amount}
             {expense.note && ` (${expense.note})`}
             <button onClick={() => handleEdit(expense.id)}>Edit</button>
