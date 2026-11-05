@@ -1,6 +1,8 @@
 # Expense Tracker 
 A personal finance management app that allows users to record, organize, and monitor their daily, monthly, and miscellaneous expenses. It helps users track where their money goes by categorizing transactions, calculating total expenses, and visualizing patterns through charts. 
 
+**Live demo:** https://expense-tracker-delta-ebon-83.vercel.app/
+
 ![Expense Tracker screenshot](image.png)
 
 
