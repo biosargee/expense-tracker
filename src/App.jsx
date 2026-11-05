@@ -1,5 +1,7 @@
+
 import { useState, useEffect } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip} from 'recharts'
+
 
 const CATEGORIES = [
   'Electricity',
