@@ -1,16 +1,49 @@
-# React + Vite
+# Expense Tracker 
+A personal finance management app that allows users to record, organize, and monitor their daily, monthly, and miscellaneous expenses. It helps users track where their money goes by categorizing transactions, calculating total expenses, and visualizing patterns through charts. 
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+![Expense Tracker screenshot](image.png)
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
+  - Add expenses
+  - Edit expenses
+  - Delete expenses
+  - Input validation with error messages
+  - Month filter
+  - Total and per-category totals
+  - Bar chart of spending by category
+  - Data saved in the browser, so it survives a refresh
 
-## React Compiler
+## Tech Stack
+ - React (Vite)
+ - JavaScript
+ - Recharts
+ - localStorage (temporary until the backend is added)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Run it locally
 
-## Expanding the Oxlint configuration
+**Requirements:** [Node.js](https://nodejs.org/) 20 or newer.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/biosargee/expense-tracker.git
+   ```
+2. Go into the project folder:
+   ```bash
+   cd expense-tracker
+   ```
+3. Install the dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+5. Open the link the terminal prints, usually `http://localhost:5173`.
+
+
+ ## Roadmap
+ 1. Express backend
+ 2. PostgreSQL integration
+ 3. Live Deployment (Vercel or Netlify)

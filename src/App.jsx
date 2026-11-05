@@ -100,13 +100,13 @@ function handleAdd() {
     return totals;
 }, {});
 
-  const chartData = Object.entries(totalsByCategory).map(([categoryName, total]) => ({
-    category,
-    total
+  const chartData = Object.entries(totalsByCategory).map(([paramsCategory, paramsTotal]) => ({
+    category: paramsCategory,
+    total: paramsTotal
   }));
 
   return (
-    <div>s
+    <div>
       <h1>Expense Tracker</h1>
 
       <input type="number"
@@ -151,7 +151,7 @@ function handleAdd() {
         <XAxis dataKey="category"></XAxis>
         <YAxis></YAxis>
         <Tooltip></Tooltip>
-        <Bar dataKey="total" fill="#8884d8" alignment="center"/>
+        <Bar dataKey="total" fill="#8884d8"/>
       </BarChart>
       <ul>
         {Object.entries(totalsByCategory).map(([name, sum]) => (
