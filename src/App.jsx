@@ -27,9 +27,7 @@ function App() {
     }
     loadExpenses()
   }, [])
-  const [expenses, setExpenses] = useState(() => { 
-  
-  })
+  const [expenses, setExpenses] = useState([])
   const [amount, setAmount] = useState('') 
   const [category, setCategory] = useState('')
   const [date, setDate] = useState('')
@@ -39,7 +37,7 @@ function App() {
   const [editingId, setEditingId] = useState(null)
 
 //validation checker for fields
-function handleAdd() {
+async function handleAdd() {
   const missing = []
   if(!amount || Number(amount) <= 0) missing.push('a valid amount')
   if(!category) missing.push('a category')
@@ -51,32 +49,36 @@ function handleAdd() {
     return;
   }
 
-  if(editingId !== null) {
-    const updatedExpense = {
-      id: editingId,
-      amount: Number(amount),
-      category,
-      date,
-      note,
-    }
-    setExpenses(expenses.map((row) => (row.id === editingId ? updatedExpense : row)))
-  } else {
-    const newExpense = {
-      id: Date.now(), // date.now is a quick id generation. 
-      amount: Number(amount),
-      category,
-      date,
-      note
-    }
-    setExpenses([...expenses, newExpense])
+  const body =  { amount: Number(amount), category, date, note }
+  try {
+    if (editingId !== null) {
+      const res = await fetch(`${API_URL}/${editingId}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'}, // tells the server that the body is JSON
+        body: JSON.stringify(body), // changes JS object into JSON String. Request body must be a string
+      })
+      if (!res.ok) throw new Error('Update failed')
+        const data = await res.json()
+        setExpenses(expenses.map((row) => (row.id === editingId ? data.expense : row)))
+      } else {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        })
+        if (!res.ok) throw new Error('Create failed')
+          const data = await res.json()
+        setExpenses([...expenses, data.expense])
+      }
+      setEditingId(null)
+      setAmount('')
+      setCategory('')
+      setDate('')
+      setNote('')
+      setError('')
+  } catch (err) {
+    setError('Could not save. Is the server running')
   }
-
-  setEditingId(null)
-  setAmount('')
-  setCategory('')
-  setDate('')
-  setNote('')
-  setError('')
 }
   function handleEdit(id) {
     const currentObject = expenses.find((expense) => expense.id === id);
@@ -92,7 +94,7 @@ function handleAdd() {
   async function handleDelete(id) {
     try {
       const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE'})
-      if (res.ok) throw new Error('Delete Failed') 
+      if (!res.ok) throw new Error('Delete Failed') 
       setExpenses(expenses.filter((expense) => expense.id !== id));
     } catch (err) {
       setError('Could not delete. Is the server running?')
