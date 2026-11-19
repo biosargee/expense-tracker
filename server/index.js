@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
-app.use(express.json())
+app.use(express.json()) //// Parses incoming JSON requests so you can access data via req.body
+const cors = require('cors')
+app.use(cors())
 
 //temporary storage
 let expenses = [
@@ -14,13 +16,13 @@ let expenses = [
 ];
 
 // READ: get all expense
-app.get('/expenses', (req, res) => {
+app.get('/expenses', (req, res) => { // incoming request and outgoing response
     res.json(expenses);
 })
 
 // CREATE: add an expense
 app.post('/expenses/', (req, res) => {
-    const { amount, category, date, note} = req.body;
+    const { amount, category, date, note } = req.body; // receives data. 
 
     if (!amount || Number(amount) <=0 || !category || !date) {
         return res.status(400).json({
@@ -38,7 +40,7 @@ app.post('/expenses/', (req, res) => {
 
     expenses.push(newExpense)
 
-    res.status(201).json({
+    res.status(201).json({ // ({}) is the entire object, message is the prop, and the string is the value
     message: "Expense created successfully", 
     expense: newExpense
     });
@@ -47,7 +49,7 @@ app.post('/expenses/', (req, res) => {
 //UPDATE: Modify an existing expense
 app.put('/expenses/:id', (req, res) => {
     const id = Number(req.params.id);
-    const { amount, category, date, note} = req.body;
+    const { amount, category, date, note} = req.body; // data sent along with the request
     const expenseIndex = expenses.findIndex(
         expense => expense.id === id
     );
@@ -78,7 +80,7 @@ app.put('/expenses/:id', (req, res) => {
 })
 
 app.delete('/expenses/:id', (req, res) => {
-    const id = Number(req.params.id);
+    const id = Number(req.params.id); // 
 
     const expenseExists = expenses.some(
         expense => expense.id === id
@@ -89,6 +91,8 @@ app.delete('/expenses/:id', (req, res) => {
             message: 'Expenses id not found!'
         });
     }
+    expenses = expenses.filter((expense) => expense.id !== id)
+    res.status(204).send() // HTTP rules say that 204 must not have a body
 })
 
 app.listen(3000, () => console.log('Server running on port 3000'))

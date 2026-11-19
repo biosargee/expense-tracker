@@ -16,13 +16,19 @@ const CATEGORIES = [
   'Discretionary spending',
 ]
 
+const API_URL = 'http://localhost:3000/expenses'
+
 function App() {
-  const [expenses, setExpenses] = useState(() => { // functions like getter and setter(but setter stores it and updates in react)
-    const saved = localStorage.getItem('expenses')
-    return saved ? JSON.parse(saved) : [
-    { id: 1, amount: 1850, category: 'Electricity', date: '2026-10-05', note: 'Meralco bill' },
-    { id: 2, amount: 500, category: 'Food and groceries', date: '2026-10-04', note: 'Weekly Groceries' },
-  ]
+  useEffect(() => {
+    async function loadExpenses() { // async keyword placed before a function to allow await, forcing the function to always return a promise
+      const res = await fetch(API_URL) // sends a GET request to the server, returns a Promise (an object that represents eventual result of an async operation)
+      const data = await res.json() // await pauses the execution of an async function until a promise settles.
+      setExpenses(data)
+    }
+    loadExpenses()
+  }, [])
+  const [expenses, setExpenses] = useState(() => { 
+  
   })
   const [amount, setAmount] = useState('') 
   const [category, setCategory] = useState('')
@@ -48,7 +54,7 @@ function handleAdd() {
   if(editingId !== null) {
     const updatedExpense = {
       id: editingId,
-      amount: Number(amount), // Number(amount) parses our string into integer
+      amount: Number(amount),
       category,
       date,
       note,
@@ -83,10 +89,16 @@ function handleAdd() {
     }
   }
 
-  function handleDelete(id) {
-    setExpenses(expenses.filter((expense) => expense.id !== id)) // expense.id, we do .<variable> to filter one field out of an object
-  } // the .filter method selects a subset of items from an array based on a condition. 
-
+  async function handleDelete(id) {
+    try {
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE'})
+      if (res.ok) throw new Error('Delete Failed') 
+      setExpenses(expenses.filter((expense) => expense.id !== id));
+    } catch (err) {
+      setError('Could not delete. Is the server running?')
+    }
+  }
+    
   function handleClear() {
     setExpenses([]);
   }
